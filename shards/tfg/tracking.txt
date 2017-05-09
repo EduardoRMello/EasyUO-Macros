@@ -1,0 +1,6 @@
+; Tracking macro by MDio
+
+event macro 13 38
+wait 2
+click  101 64 d
+wait 3s
