@@ -1,0 +1,37 @@
+Inicio:
+set %tempo 1
+event macro 13 21
+goto Hidding
+
+Hidding:
+set %tempo 1
+event macro 13 21
+wait 3
+goto jornal
+
+Stealth:
+set %tempo 1
+event macro 13 47
+wait 3
+goto jornal
+
+jornal:
+deletejournal
+scanjournal 1
+if you_must_hide in #sysMsg
+{
+event sysmessage hid
+   goto Hidding
+}
+if to_move in #sysMsg
+{
+event sysmessage stealt
+   goto Stealth
+}
+if %tempo = 100
+{
+event sysmessage tempo
+   goto Stealth
+}
+set %tempo %tempo + 1
+goto jornal
