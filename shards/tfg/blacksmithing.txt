@@ -1,0 +1,98 @@
+; by StaCy PeRalTa
+init:
+ goto storeShapeOnBank
+
+; ====== GRAB IRON ON BANK
+bankGrabIron:
+set %container WPFVJMD
+
+set #lobjectid %container
+event macro 17 0
+wait 5
+
+finditem RMK C_ , %container
+for #findindex 1 #findcnt
+{
+  ; iron
+  if #findcol = 0 {
+     exevent Drag #findid 300
+     exevent Dropc #backpackid
+  }
+}
+goto moveToBSMinoc
+
+; ====== Store Shape On Bank
+storeShapeOnBank:
+set %shapeId TLK
+event macro 1 0 banker bank
+wait 5
+
+set %container WPFVJMD
+
+set #lobjectid %container
+event macro 17 0
+wait 5
+
+finditem %shapeId C_ , #backpackid
+exevent Drag #findid #findstack
+exevent Dropc %container
+
+goto bankGrabIron
+
+; ====== GO TO BS
+moveToBSMinoc:
+move 2524 553
+goto blacksmithing
+
+; ====== GO TO BANK
+moveToBankMinoc:
+move 2514 555
+goto storeShapeOnBank
+
+blacksmithing:
+set %tempo 1
+
+finditem RMK C_ , #backpackid
+
+if #findstack < 5 {
+   goto moveToBankMinoc
+}
+
+set #lobjectid #findid
+event macro 17 0
+wait 10
+click 112 55 d
+wait 10
+
+goto journal
+
+Sell:
+move 2468 562
+move 2475 562
+move 2475 565
+move 2471 562
+event macro 1 0 Dakarai Sell
+
+Bank:
+
+journal:
+deletejournal
+scanjournal 1
+if Voce_falhou in #sysMsg
+{
+   event sysmessage falhou
+   wait 10
+   goto blacksmithing
+}
+if you_put in #sysMsg
+{
+   wait 10
+   goto blacksmithing
+}
+if %tempo = 180
+{
+   event sysmessage saiu por tempo
+   goto blacksmithing
+}
+set %tempo %tempo + 1
+goto journal
