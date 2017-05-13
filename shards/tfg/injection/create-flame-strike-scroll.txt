@@ -1,0 +1,89 @@
+; Macro de Fazer Flame Strike Scrolls
+; Puxando material de 1 Container qualquer
+; Favor seguir as instrucoes do macro
+
+sub fazer_fs()
+    VAR Blank = '0x0E34'
+    VAR Spider = '0x0F8D'
+    VAR Sulfurous = '0x0F8C'
+    VAR fs = '0x1F5F'
+
+    uo.print('%autoload by Shakespeare')
+    uo.print('Fazer FS Scroll TFG Shard')
+
+    wait(2000)
+
+    uo.print('Para o macro dar certo tenha Blank Scrolls, Spider Silk e Sulfurous Ash no mesmo Container.')
+
+    wait(5000)
+
+    UO.print('Clique no CONTAINER onde ficara os regs')
+    UO.exec('addobject CONTAINER')
+
+    while UO.targeting()
+        wait(100)
+    wend
+
+    wait(1500)
+
+    UO.print('Clique na sua BAG')
+    UO.exec('addobject Bag')
+
+    while UO.targeting()
+        wait(100)
+    wend
+
+    repeat
+    repeat
+
+    UO.CancelMenu()
+    UO.AutoMenu('Spell Circle 7','Flamestrike')
+    UO.Usetype( blank )
+
+    wait(3800)
+
+    until UO.count(Blank)<2 OR UO.count(Spider)<2 OR UO.count(Sulfurous)<2
+        UO.SetReceivingContainer('Bag')
+        UO.FindType('0x0E34',-1,'backpack')
+
+        if UO.GetQuantity('finditem')<2 then
+            UO.FindType('0x0E34','0x0000','CONTAINER') ; blank
+            wait(1000)
+            UO.Grab('100','finditem')
+        endif
+
+        UO.FindType('0x0F8D',-1,'backpack')
+
+        if UO.GetQuantity('finditem')<2 then
+            UO.FindType('0x0F8D','0x0000','CONTAINER') ; Spider Silk
+            wait(1000)
+            UO.Grab('100','finditem')
+        endif
+
+        UO.FindType('0x0F8C',-1,'backpack')
+
+        if UO.GetQuantity('finditem')<2 then
+            UO.FindType('0x0F8C','0x0000','CONTAINER') ; Sulfurous Ash
+            wait(1000)
+            UO.Grab('100','finditem')
+        endif
+
+        UO.UnSetReceivingContainer()
+        UO.SetReceivingContainer('CONTAINER')
+        UO.FindType('0x1F5F',-1,'backpack')
+
+        if UO.GetQuantity('finditem')>90 then
+            UO.FindType('0x1F5F',-1,'backpack')
+
+            wait(3000)
+
+            UO.Print('Guardando os FS')
+            UO.Grab('all','finditem')
+
+            wait(3000)
+        endif
+
+        UO.UnSetReceivingContainer()
+    until UO.dead()
+
+end sub
