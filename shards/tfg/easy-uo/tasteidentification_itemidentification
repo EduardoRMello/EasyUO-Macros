@@ -1,0 +1,30 @@
+inivents:
+set %tempoPorMacro 500
+set %tempo 1
+
+ItemIdentification:
+event macro 13 3
+target
+event macro 22 0
+wait 20
+if %tempo >= %tempoPorMacro
+{
+   set %tempo 1
+   goto TasteIdentification
+}
+set %tempo %tempo + 1
+goto ItemIdentification
+
+TasteIdentification:
+event macro 13 36
+target
+event macro 22 0
+wait 50
+
+if %tempo >= %tempoPorMacro
+{
+   set %tempo 1
+   goto ItemIdentification
+}
+set %tempo %tempo + 1
+goto TasteIdentification
