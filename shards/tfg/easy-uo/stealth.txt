@@ -1,37 +1,16 @@
-Inicio:
-set %tempo 1
+; Macro de Hiding/Stealth by MDio
+; =================================
+; v0.1
+
+; Hidding Skill
+DELETEJOURNAL
 event macro 13 21
-goto Hidding
+wait 4s
 
-Hidding:
-set %tempo 1
-event macro 13 21
-wait 3
-goto jornal
-
-Stealth:
-set %tempo 1
-event macro 13 47
-wait 3
-goto jornal
-
-jornal:
-deletejournal
-scanjournal 1
-if you_must_hide in #sysMsg
+SCANJOURNAL 1
+IF You_have_hidden_yourself_well IN #Journal
 {
-event sysmessage hid
-   goto Hidding
+  ; Stealh Skill
+  event macro 13 47
+  wait 4s
 }
-if to_move in #sysMsg
-{
-event sysmessage stealt
-   goto Stealth
-}
-if %tempo = 100
-{
-event sysmessage tempo
-   goto Stealth
-}
-set %tempo %tempo + 1
-goto jornal
