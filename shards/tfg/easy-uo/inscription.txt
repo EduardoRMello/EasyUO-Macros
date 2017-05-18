@@ -1,10 +1,9 @@
-; Macro de Inscription by MDio
-; ==================================
-; Coloque Nightshade + Ginseng na sua bag
-; Ele confeccionara Scrolls Febblemind
-; ==================================
-; v0.1 - 14/05/2017
-; ==================================
+; Macro de Inscription Febblemind by MDio
+; ================================================
+; - Materiais: Nightshade, Ginseng e Blank Scrolls
+; - Medita quando estiver em 15 de mana
+; ================================================
+; v0.2
 
 SET %manaRate = 15
 
@@ -52,26 +51,26 @@ ELSE
 }
 
 meditation:
-while #Mana < 100
+WHILE #Mana < 100
 {
   ; Limpa journal
-  deletejournal
+  DELETEJOURNAL
   
   ; Skill meditation
-  if ! %isMediting = 1
+  IF ! %isMediting = 1
   {
-    event sysmessage Iniciando Meditation
-    Event Macro 13 46
+    EVENT sysmessage Iniciando Meditation
+    EVENT Macro 13 46
   }
   
   ; Set isMediting true
-  set %isMediting = 1
+  SET %isMediting = 1
   
   ; Verificando journal
-  if You_are_at_peace. in #Journal
+  IF You_are_at_peace. in #Journal
   {
-    event Meditação Completa
-    set %isMediting = 0
-    goto inicio
+    EVENT Meditação Completa
+    SET %isMediting = 0
+    GOTO inicio
   }
 }
