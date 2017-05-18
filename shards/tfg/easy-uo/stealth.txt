@@ -10,7 +10,7 @@ wait 4s
 SCANJOURNAL 1
 IF You_have_hidden_yourself_well IN #Journal
 {
-  ; Stealh Skill
+  ; Stealth Skill
   event macro 13 47
   wait 4s
 }
