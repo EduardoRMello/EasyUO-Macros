@@ -1,0 +1,24 @@
+; Macro de Blank Scrolls by MDio
+; =================================================
+; - Materiais: Logs e Saw
+; =================================================
+; v0.1
+
+; Find Saw
+FINDITEM EGG
+IF #FINDCNT > 0
+{
+  SET #LOBJECTID #FINDID
+  EVENT MACRO 17 0
+  WAIT 10
+  
+  CLICK #LOBJECTID d;
+
+  ; Click segundo item do menu
+  CLICK 108 66 d
+  WAIT 10
+
+  ; Click primeiro item do menu
+  CLICK 63 66 d
+  WAIT 2s
+}
