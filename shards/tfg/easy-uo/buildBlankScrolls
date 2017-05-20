@@ -1,8 +1,10 @@
 ; Macro de Blank Scrolls by MDio
 ; =================================================
 ; - Materiais: Logs e Saw
+; - Skill menor que 30: Descomente a linha 19 e 20 e comente as linhas 23 e 24;
+; - Skill maior que 30: Descomente a linha 23 e 24 e comente as linhas 19 e 20;
 ; =================================================
-; v0.1
+; v0.2
 
 ; Find Saw
 FINDITEM EGG
@@ -11,11 +13,15 @@ IF #FINDCNT > 0
   SET #LOBJECTID #FINDID
   EVENT MACRO 17 0
   WAIT 10
-  
+
   CLICK #LOBJECTID d;
 
   ; Click segundo item do menu
-  CLICK 108 66 d
+  ; CLICK 108 66 d
+  ; WAIT 10
+  
+  ; Click terceiro item do menu
+  CLICK 148 62 d
   WAIT 10
 
   ; Click primeiro item do menu
