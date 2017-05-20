@@ -3,7 +3,7 @@
 ; - Materiais: Mage Robe, Nightshade, Ginseng, Blank Scrolls e Spellbook
 ; - Medita quando estiver em 15 de mana
 ; ================================================
-; v0.3
+; v1.3
 
 ; MSGS
 IF ! %isWelcomeMsgSent 1
