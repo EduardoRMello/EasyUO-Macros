@@ -1,28 +1,27 @@
 ; Macro de Inscription Febblemind by MDio
 ; ================================================
-; - Materiais: Nightshade, Ginseng e Blank Scrolls
+; - Materiais: Mage Robe, Nightshade, Ginseng, Blank Scrolls e Spellbook
 ; - Medita quando estiver em 15 de mana
 ; ================================================
-; v0.2
-
-SET %manaRate = 15
+; v0.3
 
 ; MSGS
 IF ! %isWelcomeMsgSent 1
 {
   EVENT sysmessage Iniciando Macro de Inscription
-  EVENT sysmessage # Desenvolvido por MDio - TFG
+  EVENT sysmessage # Desenvolvido por MDio - TFG #
   WAIT 2s
 }
 
 inicio:
 
+SET %minMana 15
 SET %isMediting 0
 SET %isWelcomeMsgSent 1
 
-IF #Mana < %manaRate
+IF #Mana < %minMana
 {
-  EVENT sysmessage Mana menor que %manaRate
+  EVENT sysmessage Mana menor que %minMana
   GOTO meditation
 }
 ELSE
@@ -39,9 +38,11 @@ ELSE
     CLICK 62 72 d
     WAIT 10
 
-    ; Click primeiro item do menu
+    ; Click segundo item do menu
     CLICK 62 72 d
     WAIT 1s
+    
+    GOTO inicio
   }
   ELSE
   {
@@ -51,6 +52,8 @@ ELSE
 }
 
 meditation:
+EVENT sysmessage Iniciando Meditation
+
 WHILE #Mana < 100
 {
   ; Limpa journal
