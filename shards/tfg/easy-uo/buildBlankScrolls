@@ -10,21 +10,21 @@
 FINDITEM EGG
 IF #FINDCNT > 0
 {
+  ; Define objeto com o item encontrado no FINDITEM
   SET #LOBJECTID #FINDID
-  EVENT MACRO 17 0
-  WAIT 10
-
+  
+  ; Executa duplo clique no objeto encontrado
   CLICK #LOBJECTID d;
 
-  ; Click segundo item do menu
+  ; Click segundo item do menu (Scrolls)
   ; CLICK 108 66 d
   ; WAIT 10
   
-  ; Click terceiro item do menu
+  ; Click terceiro item do menu (Scrolls)
   CLICK 148 62 d
   WAIT 10
 
-  ; Click primeiro item do menu
+  ; Click primeiro item do menu (1 scroll)
   CLICK 63 66 d
   WAIT 2s
 }
