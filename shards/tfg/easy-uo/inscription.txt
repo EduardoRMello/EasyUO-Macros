@@ -15,7 +15,7 @@ IF ! %isWelcomeMsgSent 1
 
 inicio:
 
-SET %minMana 15
+SET %minMana 10
 SET %isMediting 0
 SET %isWelcomeMsgSent 1
 
@@ -58,11 +58,12 @@ WHILE #Mana < 100
 {
   ; Limpa journal
   DELETEJOURNAL
-  
+  WAIT 2S
+
   ; Skill meditation
-  IF ! %isMediting = 1
+  IF %isMediting < 1
   {
-    EVENT sysmessage Iniciando Meditation
+    ;EVENT sysmessage Iniciando Meditation
     EVENT Macro 13 46
   }
   
