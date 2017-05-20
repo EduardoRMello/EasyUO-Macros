@@ -3,7 +3,7 @@
 ; - Materiais: Mage Robe, Nightshade, Ginseng, Blank Scrolls e Spellbook
 ; - Medita quando estiver em 15 de mana
 ; ================================================
-; v1.3
+; v1.4
 
 ; MSGS
 IF ! %isWelcomeMsgSent 1
@@ -67,13 +67,13 @@ WHILE #Mana < 100
   }
   
   ; Set isMediting true
-  SET %isMediting = 1
+  SET %isMediting 1
   
   ; Verificando journal
   IF You_are_at_peace. in #Journal
   {
     EVENT Meditação Completa
-    SET %isMediting = 0
+    SET %isMediting 0
     GOTO inicio
   }
 }
