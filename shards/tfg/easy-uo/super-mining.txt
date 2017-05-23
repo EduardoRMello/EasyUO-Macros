@@ -1,0 +1,934 @@
+; =====================================================================
+;
+; SUPER MINING TFG
+; ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
+; by MaGuS
+; versão 1.1
+;
+; magusfva@hotmail.com
+;
+; Extras:
+; * Menu para monitorar o macro
+; * Anti-stuck (seu char nao ficara travado tentando andar)
+; * Auto-smelter de 1 em 1 ou direto
+; * Caminhada pela mina melhorada
+; * Volta para a mina caso o Char saia
+; * Em breve: Auto-Recall pro banco e voltar.
+;
+; Desenvolvido especialmente para uso na TFG.
+; Baseado no macro de mining sem smelt do servidor StrongHold
+; Distribuição: Gratúita
+; =====================================================================
+
+
+; ========================CONFIGURAÇÕES INICIAIS===========================
+;Smeltar de 1 em 1?
+Set %smelt1em1 n/a
+;para smeltar de 1 em 1 coloque: 1
+;para smeltar tudo de uma vez coloque: n/a
+
+;Usar o menu de vigiar o macro?
+; (on= 1, off= n/a)
+Set %menustat 1
+
+; ========================ORES QUE VOCE DESEJA PEGAR=======================
+; pegar= "sim" ou "nao"
+set %iron sim
+set %copper sim
+set %dullcopper sim
+set %oldcopper sim
+set %rusty sim
+set %ceramic sim
+set %rose sim
+set %bronze sim
+set %verite sim
+set %shadow sim
+set %valorite sim
+set %silver sim
+set %gold sim
+set %bloodrock sim
+set %blackrock sim
+set %mythril sim
+; =========================FIM DAS CONFIGURAÇÕES===========================
+
+
+; Open status
+event macro 8 2
+wait 10
+
+; Open backpack
+event macro 8 7
+wait 10
+if %menustat = n/a
+goto start
+set %hora #time / 10000
+set %min ( #time / 100 ) - ( %hora * 100 )
+if %min < 10
+set %min 0 , %min
+set %dia1 #date / 100
+set %dia #date - ( %dia1 * 100 )
+set %mes1 %dia1 / 100
+set %mes ( #date / 100 ) - ( %mes1 * 100 )
+Chooseskill Mini
+set %skilli #skill
+set %skillint #skill / 10
+set %skillqueb #skill % 10
+set %skill %skillint , , , %skillqueb
+set %mudanca 0 , , , 0
+Set %status iniciando...
+set #MENUBUTTON N/A
+menu clear
+menu hideeuo
+menu window size 300 120
+menu window title Monitor: #CHARNAME
+Menu Font Transparent #true
+menu font name Comic Sans MS
+menu font align center
+menu font size 10
+menu font style b
+menu window color $000000
+menu font bgcolor Black
+menu font color $0000AA
+menu show 2s
+Menu Font Color $FFFFFF
+Menu Font Size 10
+Menu Font Style B
+Menu Font Name Verdana
+menu Text text_1 9 6 Status:
+Menu Font Color $000000
+Menu Font Size 10
+Menu Font Style B
+Menu Font Name Verdana
+menu Text text_1 10 5 Status:
+Menu Font Color $FFFFFF
+Menu Font Size 12
+Menu Font Style B
+Menu Font Name Tahoma
+menu Text text_1 149 1 Super Mining TFG
+Menu Font Color $0000FF
+Menu Font Size 12
+Menu Font Style B
+Menu Font Name Tahoma
+menu Text text_1 150 0 Super Mining TFG
+Menu Font Color $0000FF
+Menu Font Size 8
+Menu Font Style B
+Menu Font Name Tahoma
+menu Text text_1 234 20 by MaGuS
+Menu Font Color white
+Menu Font Size 10
+Menu Font Style i_u_b
+Menu Font Name Tahoma
+menu Text text_1 260 95 v1.1
+Menu Font Color $FF0000
+Menu Font Size 8
+Menu Font Style B
+Menu Font Name Verdana
+menu Text text_1 10 30 Macroando desde: %dia , / , %mes - %hora , : , %min
+menu Text text_1 10 45 Skill em Mining:
+menu Text text_1 10 60 Ultimo ore minerado:
+
+; ==--== INICIO ==--==
+start:
+initevents
+gosub messag
+gosub Menu
+
+; ========================CONFIGURAÇÕES INICIAIS - Variáveis=====================
+
+Set %initx #charposx
+Set %inity #charposy
+Set %Pickaxe NPF_QPF
+Set %Tentativa 4
+Set %TempoEspera 9
+Set %TempoPickaxe 2
+Set %forarepete 0
+
+Set %cnt 0
+Set %funcao 0
+
+Set #ltargetid 0
+Set #ltargetz 0
+Set #ltargetkind 3
+
+Set %acertos 0
+Set %falhas 0
+Set %total 0
+Set %aproveitamento 100
+Set %ultimoore Nenhum
+
+Set %difpeso 5
+Set %jloop 0
+
+; ====================INICIO====================
+Inicio:
+
+set %jloop 0
+set %wmax #maxweight - %difpeso
+if #weight > %wmax
+{
+goto smelt
+}
+gosub %cnt 1
+Set %cnt %cnt + 1
+
+if #hits < #maxhits
+{
+sound erro.wav
+msg Guards$
+}
+
+if %cnt > 7
+{
+Set %cnt 0
+goto caminha
+}
+
+Set %Chance 0
+if #lobjecttype <> %Pickaxe
+{
+gosub pickaxe
+}
+goto mine
+
+sub messag
+Set %syscol #sysMsgCol
+Set #sysMsgCol 1264
+Set #sysMsgCol %syscol
+wait 2s
+return
+
+; ====================MINE====================
+mine:
+set %status Mining
+gosub Menu
+Set %Chance %Chance + 1
+if %Chance > %Tentativa
+{
+goto inicio
+}
+
+delete journal
+event macro 17 0
+target 1s
+event macro 22 0
+
+Set #SCNT 0
+goto jornal
+
+; ====================JORNAL====================
+jornal:
+if #SCNT >= %TempoEspera
+{
+goto mine
+
+}
+if #hits < #maxhits
+{
+msg Guards !$
+}
+set %jscan ( #random % 2 ) + 1
+scanjournal %jscan
+
+if feet in #journal
+{
+   deletejournal
+   goto CP
+}
+
+if You_notice in #journal
+{
+deletejournal
+msg guards $
+}
+if TRYING_TO_STEAL in #journal
+{
+deletejournal
+msg guards $
+}
+if ATTACKING_YOU in #journal
+{
+deletejournal
+msg guards $
+}
+if You_see in #journal
+{
+deletejournal
+}
+if nothing_here_to_mine in #journal
+{
+deletejournal
+Set %Chance 0
+goto espera
+}
+if #hits < #maxhits
+{
+msg guards$
+deletejournal
+}
+if play in #journal
+{
+goto espera
+}
+if use_the_%s in #journal
+{
+deletejournal
+Set %Chance 0
+goto espera
+}
+if no_line in #journal
+{
+deletejournal
+Set %Chance 0
+goto espera
+}
+if fail in #journal
+{
+deletejournal
+set %falhas %falhas + 1
+goto espera
+}
+if Voce_colocou in #journal
+{
+Set %acertos %acertos + 1
+Set %Chance 0
+if ore in #journal
+set %ultimoore Desconhecido =(
+if iron_ore in #journal
+{
+set %ultimoore Iron
+if %iron = nao
+{
+deletejournal
+Set %Chance 0
+goto espera
+}
+}
+if copper_ore in #journal
+{
+set %ultimoore Copper
+if %copper = nao
+{
+deletejournal
+Set %Chance 0
+goto espera
+}
+}
+if dull_copper_ore in #journal
+{
+set %ultimoore DullCopper
+if %dullcopper = nao
+{
+deletejournal
+Set %Chance 0
+goto espera
+}
+}
+if old_copper_ore in #journal
+{
+set %ultimoore OldCopper
+if %oldcopper = nao
+{
+deletejournal
+Set %Chance 0
+goto espera
+}
+}
+if Rusty_ore in #journal
+{
+set %ultimoore Rusty
+if %rusty = nao
+{
+deletejournal
+Set %Chance 0
+goto espera
+}
+}
+if Ceramic in #journal
+{
+set %ultimoore Ceramic
+if %ceramic = nao
+{
+deletejournal
+Set %Chance 0
+goto espera
+}
+}
+if Rose_ore in #journal
+{
+set %ultimoore Rose
+if %rose = nao
+{
+deletejournal
+Set %Chance 0
+goto espera
+}
+}
+if Bronze_ore in #journal
+{
+set %ultimoore Bronze
+if %bronze = nao
+{
+deletejournal
+Set %Chance 0
+goto espera
+}
+}
+if Verite_ore in #journal
+{
+set %ultimoore Verite
+if %verite = nao
+{
+deletejournal
+Set %Chance 0
+goto espera
+}
+}
+if Shadow_ore in #journal
+{
+set %ultimoore Shadow
+if %shadow = nao
+{
+deletejournal
+Set %Chance 0
+goto espera
+}
+}
+if Valorite_ore in #journal
+{
+set %ultimoore Valorite
+if %valorite = nao
+{
+deletejournal
+Set %Chance 0
+goto espera
+}
+}
+if Silver_ore in #journal
+{
+set %ultimoore Silver
+if %silver = nao
+{
+deletejournal
+Set %Chance 0
+goto espera
+}
+}
+if Gold_ore in #journal
+{
+set %ultimoore Gold
+if %gold = nao
+{
+deletejournal
+Set %Chance 0
+goto espera
+}
+}
+if Bloodrock_ore in #journal
+{
+set %ultimoore Bloodrock
+if %bloodrock = nao
+{
+deletejournal
+Set %Chance 0
+goto espera
+}
+}
+if Blackrock_ore in #journal
+{
+set %ultimoore Blackrock
+if %blackrock = nao
+{
+deletejournal
+Set %Chance 0
+goto espera
+}
+}
+if Mythril_ore in #journal
+{
+set %ultimoore Mythril
+if %mythril = nao
+{
+deletejournal
+Set %Chance 0
+goto espera
+}
+}
+deletejournal
+goto mine
+}
+if you_can't_mine_there in #journal || Try_mining in #journal
+{
+deletejournal
+set %forarepete %forarepete + 1
+Set %Chance 0
+goto retornar
+}
+if too_far in #journal
+{
+deletejournal
+goto mine
+}
+goto jornal
+
+; ====================ESPERA====================
+espera:
+Set #SCNT 0
+espe:
+;wait 4
+if %Chance = 0
+{
+goto inicio
+}
+goto mine
+
+
+; ====================Retornar=====================
+retornar:
+if %forarepete > 3
+{
+set %Chance 0
+set %forarepete 0
+Set %syscol #sysMsgCol
+Set #sysMsgCol 1264
+event sysmessage Estou fora da mina, retornando.
+Set #sysMsgCol %syscol
+event Pathfind %initx %inity
+goto espera
+}
+goto espera
+
+; =====================SMELT=======================
+smelt:
+set %wmax #maxweight - %difpeso
+if #weight < %wmax
+{
+goto inicio
+}
+Set %status Forge??
+set %PosAntesSmeltX #charPosX
+set %PosAntesSmeltY #charPosY
+set %PosAntesSmeltZ #charPosZ
+
+
+ProcurarForge:
+gosub Menu
+if %ProcurarForgeCont > 20
+{
+display ok Forge nao encontrada.
+gosub zHalt Forge nao encontrada.
+set %ProcurarForgeCont 0
+}
+Set %syscol #sysMsgCol
+Set #sysMsgCol 1264
+event SysMessage Procurando forge...
+Set #sysMsgCol %syscol
+finditem JBG_JJ_SOJ_BUJ_IVJ_WOJ_WUJ
+if #findKind = -1
+{
+if %nForgeId <> n/a
+{
+gosub estimateDistance %nForgeX %nForgeY + 1
+set %nDist #result
+if %nDist < 5000
+goto pathfindforge
+}
+
+set %ProcurarForgeCont %ProcurarForgeCont + 2
+wait 1s
+goto ProcurarForge
+}
+if #findDist > 1
+{
+set %nForgeY #findY + 1
+set %nForgeX #findX
+goto pathfindforge
+}
+set %nForgeId #findId
+set %nForgeX #findX
+set %nForgeY #findY + 1
+Set %syscol #sysMsgCol
+Set #sysMsgCol 1264
+event Sysmessage . .
+event Sysmessage ! AUTO-SMELT ATIVADO !
+event Sysmessage . .
+Set #sysMsgCol %syscol
+goto ProcurarOre
+
+
+pathfindforge:
+set %startposx #charposx
+set %startposy #charposy
+set %walked 0
+event PathFind %nForgeX %nForgeY
+wait 2s
+if %startposx = #charposx
+{
+if %startposy = #charposy ; didn't walk
+{
+Set %syscol #sysMsgCol
+Set #sysMsgCol 1264
+event sysmessage ANTI-STUCK ATIVADO.
+Set #sysMsgCol %syscol
+if %walked = 0
+{
+event macro 5 3 ;walk east
+event macro 5 3 ;walk east
+wait 7
+set %walked 1
+goto pathfindforge
+}
+if %walked = 1
+{
+event macro 5 5 ;walk south
+event macro 5 5 ;walk south
+wait 7
+set %walked 2
+goto pathfindforge
+}
+if %walked = 2
+{
+event macro 5 7 ;walk west
+event macro 5 7 ;walk west
+wait 7
+set %walked 3
+goto pathfindforge
+}
+if %walked = 3
+{
+event macro 5 1 ;walk north
+event macro 5 1 ;walk north
+wait 7
+set %walked 0
+goto pathfindforge
+}
+goto ProcurarForge
+}
+}
+goto ProcurarForge
+
+
+ProcurarOre:
+set %status Smeltando
+gosub Menu
+if %smelt1em1 = n/a
+{
+finditem DWJ_TVJ_EWJ_GWJ_TVJ C_ , #backpackid
+if #findkind = -1
+{
+set %wmax #maxweight - %difpeso
+if #weight > %wmax
+{
+display Muito peso mas nao ha ores pra smeltar.$
++Macro parado.
+Menu Hide
+halt
+}
+Set %syscol #sysMsgCol
+Set #sysMsgCol 1264
+event SysMessage Ores smeltados.
+Set #sysMsgCol %syscol
+event Macro 5 7
+wait 5
+event PathFind %PosAntesSmeltX %PosAntesSmeltY %PosAntesSmeltZ
+wait 3s
+goto Inicio
+}
+set #lObjectId #findId
+event macro 17 0 ;lastobject, use ore
+wait 2s
+goto ProcurarOre
+}
+if %smelt1em1 = 1
+{
+set %bp #backpackid
+set %amount 0
+Set %syscol #sysMsgCol
+Set #sysMsgCol 1264
+event sysmessage Smeltando de 1 em 1.
+Set #sysMsgCol %syscol
+wait 20
+
+event Macro 9 7
+wait 5
+nextCPos 10 10
+event Macro 8 7
+wait 5
+
+finditem DWJ_EWJ_GWJ_TVJ C_ , %bp ;encontrar ores
+if #findkind = -1
+{
+set %wmax #maxweight - %difpeso
+if #weight > %wmax
+{
+display Muito peso mas nao ha ores pra smeltar.$
++Macro parado.
+Menu Hide
+halt
+}
+Set %syscol #sysMsgCol
+Set #sysMsgCol 1264
+event sysmessage Ores nao encontrados.
+Set #sysMsgCol %syscol
+goto Inicio
+}
+
+for %loop 0 #findCnt
+{
+finditem DWJ_EWJ_GWJ C_ , %bp ;encontrar ores
+set %ore #findid
+}
+goto separa
+}
+
+separa:
+if #hits < #maxhits
+{
+sound erro.wav
+}
+finditem DWJ_EWJ_GWJ C_ , %bp ;encontrar ores
+if #findstack = 1
+{
+ignoreitem
+}
+else
+{
+set %ore #findid
+}
+if #findkind <> -1
+{
+event Drag %ore
+wait 7
+msg 1$
+wait 7
+click 180 59 p
+wait 10
+gosub journal
+}
+else
+{
+wait 15
+}
+gosub smelt
+finditem DWJ_EWJ_GWJ_TVJ C_ , %bp
+if #findkind = -1
+{
+Set %syscol #sysMsgCol
+Set #sysMsgCol 1264
+event sysmessage Todos os ores separados e smeltados.
+Set #sysMsgCol %syscol
+event PathFind %PosAntesSmeltX %PosAntesSmeltY %PosAntesSmeltZ
+wait 3s
+goto Inicio
+}
+else
+{
+goto separa
+}
+goto separa
+
+sub journal
+scanjournal 1
+if possui_itens_demais in #journal
+{
+finditem TVJ G_1
+if #findkind <> -1
+{
+set #lobjectid #findid
+event macro 17 0
+wait 2s
+}
+finditem TVJ C_ , %bp ;find iron
+if #findkind <> -1
+{
+set #lobjectid #findid
+event macro 17 0
+wait 2s
+}
+}
+deletejournal
+return
+
+sub smelt
+gosub Menu
+finditem TVJ C_ , %bp ;find iron
+if #findkind <> -1
+{
+if #findcnt > 1
+{
+for %xsmelt 0 #findcnt
+{
+finditem TVJ C_ , %bp ;find iron
+set #lobjectid #findid
+event macro 17 0
+wait 50
+}
+}
+set #lobjectid #findid
+event macro 17 0
+wait 15
+}
+scanjournal 1
+if nao_pode_smeltar_ores in #journal
+{
+event macro 17 0
+wait 15
+deletejournal
+}
+wait 7
+return
+
+; ====================Caminhada====================
+caminha:
+set %status Andando
+gosub Menu
+Set %funcao #random % 8
+gosub %funcao 3
+set %aax #charposx
+set %aay #charposy
+move #ltargetx #ltargety 0 2s
+if %aax = #charposx
+{
+if %aay = #charposy ;indica que o char nao se moveu
+{
+goto caminha
+}
+}
+
+goto inicio
+
+; ==================== CP Area ====================
+cp:
+   set %status Andando
+   gosub Menu
+   
+   set %x %initx
+   set %y %inity
+
+   move 4062 440 4 4s
+   wait 10
+   
+   msg jude pedra$
+   
+   wait 10
+   
+   deletejournal
+
+   move %x %y 0 5s
+   
+   goto inicio
+
+; ====================Ajusta targets Automatico====================
+sub 0
+set #ltargetx #charposx
+set #ltargety #charposy - %1
+return
+
+sub 1
+set #ltargetx #charposx + %1
+set #ltargety #charposy - %1
+return
+
+sub 2
+set #ltargetx #charposx + %1
+set #ltargety #charposy
+return
+
+sub 3
+set #ltargetx #charposx + %1
+set #ltargety #charposy + %1
+return
+
+sub 4
+set #ltargetx #charposx
+set #ltargety #charposy + %1
+return
+
+sub 5
+set #ltargetx #charposx - %1
+set #ltargety #charposy + %1
+return
+
+sub 6
+set #ltargetx #charposx - %1
+set #ltargety #charposy
+return
+
+sub 7
+set #ltargetx #charposx - %1
+set #ltargety #charposy - %1
+return
+
+; ====================PICKAXE====================
+sub pickaxe
+finditem %Pickaxe
+
+if #findkind = 0
+{
+set #LObjectID #FindID
+set #lobjecttype #findtype
+return
+}
+
+if #findkind = 1
+{
+ignoreitem #FindID
+gosub pickaxe
+return
+}
+
+if #findkind = -1
+{
+ignoreitem reset
+Set %syscol #sysMsgCol
+Set #sysMsgCol 1264
+event sysmessage Pickaxe nao encontrada
+Set #sysMsgCol %syscol
+halt
+}
+return
+
+;==--==MENU==--==
+sub Menu
+
+if %menustat = n/a
+return
+
+if #MENUBUTTON = CLOSED
+{
+display Macro parado.
+stop
+}
+Set %total %acertos + %falhas
+Set %aproveitamento ( %acertos * 100 ) / %total
+ChooseSkill Mini
+set %skillint #skill / 10
+set %skillqueb #skill % 10
+set %skill %skillint , , , %skillqueb
+set %mudancaint ( #skill - %skilli ) / 10
+set %mudancaqueb ( #skill - %skilli ) % 10
+set %mudanca %mudancaint , , , %mudancaqueb
+Menu delete text_2
+Menu Font Color $0000FF
+Menu Font Size 8
+Menu Font Style B
+Menu Font Name Verdana
+Menu Font Style
+if #skill < 1000
+menu Text text_2 115 45 %skill ( , + , %mudanca , )
+if #skill > 999
+menu Text text_2 115 45 100.0+
+menu Text text_2 152 60 %ultimoore
+Menu Font Size 10
+Menu Font Name Verdana
+menu Text text_2 65 6 %status
+Menu Font Color $FF0000
+Menu Font Size 8
+Menu Font Style B
+Menu Font Name Verdana
+menu Text text_2 10 75 Voce acertou %acertos de %total tentativas
+Menu Font Color $FF0000
+menu Text text_2 10 90 Aproveitamento: %aproveitamento , %
+return
+
+;==================FIM DO MACRO===================
