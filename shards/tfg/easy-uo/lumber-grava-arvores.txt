@@ -1,0 +1,401 @@
+                                             initEvents
+event macro 8 1
+event macro 8 7
+set %temp
+set %Comida RUD_HND_FUD
+iniciogeral:
+set %t 1
+set %temp *lugarx . %t
+while %temp <> N/A
+{
+set %t %t + 1
+set %temp *lugarx . %t
+}
+set %t %t - 1
+gosub zeralogs
+gosub contalog
+menu Clear
+menu Window Title LumberMacro? v1.12
+menu Window Color BtnFace
+menu Window Size 230 300
+menu Font Transparent #true
+menu Font Align center
+menu Font Name MS Sans Serif
+menu Font Size 12
+menu Font Style
+menu Font Color WindowText
+menu Font Transparent #false
+menu Font Align Left
+menu HideEUO
+menu Font Style B
+menu Text T_Arvores 15 5 %t ?rvores
+menu Text T_Logs 15 27 %logs Logs
+menu Font Color $4AC6C6
+menu Text T_WLogs 15 49 %wlogs Willow
+menu Font Color $527B7B
+menu Text T_CLogs 15 71 %clogs Cedar
+menu Font Color $4A6B7B
+menu Text T_ALogs 15 93 %alogs Amapa
+menu Font Color $529C5A
+menu Text T_CYLogs 15 115 %cylogs Cypress
+menu Font Color $635A5A
+menu Text T_OLogs 15 137 %ologs Oak
+menu Font Color $29397B
+menu Text T_MLogs 15 159 %mlogs Mahogany
+menu Font Color $396B29
+menu Text T_ILogs 15 181 %ilogs Ipe
+menu Font Color $0018C6;BGR
+menu Text T_RCLogs 15 203 %rclogs Red Cedar
+menu Font Color $C67300
+menu Text T_FLogs 15 225 %flogs Frost
+menu Font Color $000000
+menu Text T_Total 15 247 %total Logs no Total
+menu Font Size 8
+menu Font Style
+menu Button B_Iniciar 8 273 65 17 &Iniciar
+menu Button B_Gravar 80 273 65 17 &Gravar
+menu Button B_Apagar 152 273 65 17 &Apagar
+menu Text About 180 5 By zUmA
+menu Show
+set #MenuButton N/A
+
+Buttonloop:
+if #MenuButton = B_Iniciar
+{
+if %t < 1
+{
+set #MenuButton N/A
+Display ok Voc? n?o tem ?rvores gravadas.
+goto Buttonloop
+}
+menu delete B_Iniciar
+menu delete B_Gravar
+menu delete B_Apagar
+menu Button B_Parar 8 273 210 17 &Parar
+goto iniciocatar
+}
+if #MenuButton = B_Gravar
+{
+set #MenuButton N/A
+display yesno Isto ir? apagar seu registro de ?rvores. Tem certeza que deseja prosseguir?
+if #DisPres = YES
+{
+menu delete B_Iniciar
+menu delete B_Gravar
+menu delete B_Apagar
+menu Button B_Parar 8 273 210 17 &Parar
+goto iniciomarcar
+}
+}
+if #MenuButton = B_Apagar
+{
+set #MenuButton N/A
+display yesno Isto ir? apagar seu registro de ?rvores. Tem certeza que deseja prosseguir?
+if #DisPres = YES
+{
+menu delete B_Iniciar
+menu delete B_Gravar
+menu delete B_Apagar
+goto inicioapagar
+}
+}
+if #MenuButton = Closed
+halt
+goto ButtonLoop
+
+iniciocatar:
+set #MenuButton N/A
+set %temp 0
+while %temp <> N/A
+{
+set %t %t + 1
+set %temp *lugarx . %t
+}
+set %t %t - 1
+for %i 1 %t
+{
+gosub comida
+set #SCNT 0
+gosub catar
+}
+sub catar
+deletejournal
+move *lugarx . %i *lugary . %i 0
+gosub usamachado
+click *clickx . %i *clicky . %i
+scancata:
+if #MenuButton = B_Parar
+{
+set #targCurs 0
+goto iniciogeral
+}
+scanjournal 1
+if logs_in_your_pack in #Journal || You_hack_at_the_tree_for_a_while in #Journal
+{
+set #SCNT 0
+gosub zeralogs
+gosub contalog
+gosub catar
+return
+}
+if There_is_nothing_here_to_chop in #Journal || It_appears_immune_to_your_blow in #Journal || You_can\'t_think_of_a_way_to_use_that_item in #Journal || That_is_too_far_away in #Journal || You_can\'t_reach_this in #Journal
+goto outjournal
+if #SCNT > 15
+goto outjournal
+goto scancata
+outjournal:
+return
+goto iniciocatar
+goto iniciogeral
+iniciomarcar:
+set #MenuButton N/A
+set %t 1
+set %temp *lugarx . %t
+while %temp <> N/A
+{
+set %t %t + 1
+set %temp *lugarx . %t
+}
+set %t %t - 1
+if %t <> 0
+{
+for %i %t 1
+{
+set *lugarx . %i N/A
+set *lugary . %i N/A
+set *clickx . %i N/A
+set *clicky . %i N/A
+menu delete T_Arvores
+set %debug1 %t - %i
+menu Text T_Arvores 15 5 %debug1 ?rvores
+}
+}
+set %i 1
+;set %t 0
+inicio:
+;set %t %t + 1
+menu delete T_Arvores
+set %i %i - 1
+menu Font Size 12
+menu Text T_Arvores 15 5 %i ?rvores
+menu Font Size 8
+set %i %i + 1
+deletejournal 1
+gosub usamachado
+;if %i = 0
+;set %i 1
+if *lugarx . %i = N/A
+{
+;set %t %i + 1
+event exmsg #charid 1 1 va para a %i , a arvore
+}
+target
+targloop:
+if #MenuButton = B_Parar
+{
+if *lugarx1 = N/A
+{
+set %i %i - 1
+}
+set #targCurs 0
+goto iniciogeral
+}
+if #targCurs = 0
+{
+set *lugarx . %i #CharPosX
+set *lugary . %i #CharPosY
+set *clickx . %i #CursorX
+set *clicky . %i #CursorY
+set #SCNT 0
+scanseta:
+if #MenuButton = B_Parar
+{
+set #targCurs 0
+goto iniciogeral
+}
+scanjournal 1
+if There_is_nothing_here_to_chop in #Journal || logs_in_your_pack in #Journal || You_hack_at_the_tree_for_a_while in #Journal
+{
+set %i %i + 1
+goto inicio
+}
+if It_appears_immune_to_your_blow in #Journal || You_can\'t_think_of_a_way_to_use_that_item in #Journal || That_is_too_far_away in #Journal || You_can\'t_reach_this in #Journal
+{
+event exmsg #charid 1 1 va para a %i , a arvore
+goto inicio
+}
+if Targeting_cancelled in #Journal
+{
+set *lugarx . %i N/A
+set *lugary . %i N/A
+set *clickx . %i N/A
+set *clicky . %i N/A
+event exmsg #charid 1 1 Se quiser parar a gravacao precione o botao parar
+goto inicio
+}
+if #SCNT = 10
+{
+set *lugarx . %i N/A
+goto inicio
+}
+goto scanseta
+}
+goto targloop
+
+goto iniciogeral
+inicioapagar:
+set #MenuButton N/A
+set %t 1
+set %temp *lugarx . %t
+while %temp <> N/A
+{
+set %t %t + 1
+set %temp *lugarx . %t
+}
+if %t = 1
+goto iniciogeral
+set %t %t - 1
+for %i %t 1
+{
+set *lugarx . %i N/A
+set *lugary . %i N/A
+set *clickx . %i N/A
+set *clicky . %i N/A
+menu delete T_Arvores
+set %i %i - 1
+menu Text T_Arvores 15 5 %i ?rvores
+set %i %i + 1
+}
+goto iniciogeral
+
+sub contalog
+finditem ZLK
+if #findkind = 0
+{
+if #findcol = 0
+set %logs %logs + #findstack
+
+if #findcol = 55
+set %wlogs %wlogs + #findstack
+
+if #findcol = 2308
+set %clogs %clogs + #findstack
+
+if #findcol = 456
+set %alogs %alogs + #findstack
+
+if #findcol = 569
+set %cylogs %cylogs + #findstack
+
+if #findcol = 1104
+set %ologs %ologs + #findstack
+
+if #findcol = 1551
+set %mlogs %mlogs + #findstack
+
+if #findcol = 572
+set %ilogs %ilogs + #findstack
+
+if #findcol = 38
+set %rclogs %rclogs + #findstack
+
+if #findcol = 93
+set %flogs %flogs + #findstack
+
+ignoreitem #findid
+gosub contalog
+set %total %logs + %wlogs + %clogs + %alogs + %cylogs + %ologs + %mlogs + %ilogs + %rclogs + %flogs
+return
+}
+if #findkind = -1
+{
+set %total %logs + %wlogs + %clogs + %alogs + %cylogs + %ologs + %mlogs + %ilogs + %rclogs + %flogs
+ignoreitem reset
+menu delete T_Logs
+menu delete T_WLogs
+menu delete T_CLogs
+menu delete T_ALogs
+menu delete T_CYLogs
+menu delete T_OLogs
+menu delete T_MLogs
+menu delete T_ILogs
+menu delete T_RCLogs
+menu delete T_FLogs
+menu delete T_Total
+menu Font Size 12
+menu Text T_Logs 15 27 %logs Logs
+menu Font Color $408080
+menu Text T_WLogs 15 49 %wlogs Willow
+menu Font Color $426373
+menu Text T_CLogs 15 71 %clogs Cedar
+menu Font Color $527B7B
+menu Text T_ALogs 15 93 %alogs Amapa
+menu Font Color $529C5A
+menu Text T_CYLogs 15 115 %cylogs Cypress
+menu Font Color $635A5A
+menu Text T_OLogs 15 137 %ologs Oak
+menu Font Color $29397B
+menu Text T_MLogs 15 159 %mlogs Mahogany
+menu Font Color $396B29
+menu Text T_ILogs 15 181 %ilogs Ipe
+menu Font Color $0018C6;BGR
+menu Text T_RCLogs 15 203 %rclogs Red Cedar
+menu Font Color $C67300
+menu Text T_FLogs 15 225 %flogs Frost
+menu Font Color $000000
+menu Text T_Total 15 247 %total Logs no Total
+menu Font Size 8
+return
+}
+sub usamachado
+finditem ZRF_FSF_ASF_FFF_POH_LPH_BPH_LSF_MPH
+if #findkind = 0
+{
+set #lobjectid #findid
+event macro 17 0
+target
+}
+if #findkind = -1
+{
+event exmsg #charid 1 1 Voce nao tem um machado
+halt
+}
+return
+sub comida
+
+finditem %Comida
+
+if #findkind = 0
+{
+set #LObjectID #FindID
+event macro 17 0
+return
+}
+
+if #findkind = 1
+{
+ignoreitem #FindID
+gosub comida
+return
+}
+
+if #findkind = -1
+{
+ignoreitem reset
+event exmsg #charid 1 1 CUIDADO!
+event exmsg #charid 1 1 Voce nao tem comida!
+return
+}
+return
+sub zeralogs
+set %logs 0
+set %wlogs 0
+set %clogs 0
+set %alogs 0
+set %cylogs 0
+set %ologs 0
+set %mlogs 0
+set %ilogs 0
+set %rclogs 0
+set %flogs 0
+return
