@@ -1,33 +1,93 @@
-; Macro de Carpentry - Blank Scrolls by MDio
+; Macro de Carpentry - Blank Scrolls by MDio and Stacy Peralta
 ; =================================================
-; - Materiais: Logs e Saw
-; - Carpentry menor que 30: Descomente a linha 19 e 20 e comente as linhas 23 e 24;
-; - Carpentry maior que 30: Descomente a linha 23 e 24 e comente as linhas 19 e 20;
+; - Materiais: Logs no bau e Saw na bakcpack
 ; =================================================
-; v0.2
+; v1.0
+
+init:
+set %ContainerMaterial QGTELMD
+set %Material ZLK
+set %ContainerProduto QGTELMD
+set %Produto MMF
+set %Ferramenta EGG
+set %QuantidadeMaterialParaBag 50
+set %QuantidadeMinimaMaterial 10
+set %Timeout 60
+set %CountJournal 1
+
+goto make
+
+make:
+gosub drop
+gosub drag
 
 ; Find Saw
-FINDITEM EGG
+FINDITEM %Ferramenta
 IF #FINDCNT > 0
 {
   ; Define objeto com o item encontrado no FINDITEM
   SET #LOBJECTID #FINDID
-  
+
   EVENT MACRO 17 0
   WAIT 10
 
   ; Executa duplo clique no objeto encontrado
   CLICK #LOBJECTID d;
 
-  ; Click segundo item do menu (Scrolls)
-  ; CLICK 108 66 d
-  ; WAIT 10
-
-  ; Click terceiro item do menu (Scrolls)
-  CLICK 148 62 d
+  chooseskill carp
+  if #SKILL < 301
+  {
+     ; Click segundo item do menu (Scrolls)
+     CLICK 108 66 d
+  }
+  else
+  {
+     ; Click terceiro item do menu (Scrolls)
+     CLICK 148 62 d
+   }
+   
   WAIT 10
 
   ; Click primeiro item do menu (1 scroll)
   CLICK 63 66 d
-  WAIT 2s
+  WAIT 10
 }
+
+set %CountJournal 1
+
+goto journal
+
+journal:
+DELETEJOURNAL
+SCANJOURNAL 1
+
+IF YOU_PUT IN #SYSMSG || you_fail IN #SYSMSG || %CountJournal >= %Timeout
+{
+   goto make
+}
+
+set %CountJournal %CountJournal + 1
+goto journal
+
+sub drag
+
+finditem %Material C_ , #backpackid
+if #findstack <= %QuantidadeMinimaMaterial
+{
+  finditem %Material C_ , %ContainerMaterial
+  exevent DRAG #FINDID %QuantidadeMaterialParaBag
+  exevent DROPC #backpackid
+  wait 10
+}
+return
+
+sub drop
+
+finditem %Produto C_ , #backpackid
+if #findstack > 0
+{
+  exevent DRAG #FINDID #FINDSTACK
+  exevent DROPC %ContainerProduto
+  wait 10
+}
+return
